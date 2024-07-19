@@ -1,0 +1,35 @@
+# scripts/data_collection.py
+
+import requests
+import pandas as pd
+from web3 import Web3
+
+def fetch_token_data(api_url, contract_address, start_block, end_block):
+    """
+    Fetch data from a token contract on a blockchain network.
+    
+    :param api_url: Base URL of the blockchain API
+    :param contract_address: Address of the token contract
+    :param start_block: Starting block number
+    :param end_block: Ending block number
+    :return: DataFrame with token data
+    """
+    params = {
+        'module': 'account',
+        'action': 'tokentx',
+        'contractaddress': contract_address,
+        'startblock': start_block,
+        'endblock': end_block,
+        'sort': 'asc',
+        'apikey': 'YourApiKeyToken'
+    }
+    response = requests.get(api_url, params=params)
+    response.raise_for_status()
+    data = response.json()['result']
+    df = pd.DataFrame(data)
+    df['timeStamp'] = pd.to_datetime(df['timeStamp'], unit='s')
+    return df
+
+# Example usage:
+# token_data = fetch_token_data('https://api.etherscan.io/api', '0xYourTokenContractAddress', 0, 99999999)
+# print(token_data)
